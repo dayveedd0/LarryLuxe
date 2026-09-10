@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Larré Luxe Customers & Measurements collection rules
+    match /customers/{customerId} {
+      // Allows master tailor app to read, write, update, and delete customer records & measurements
+      allow read, write: if true;
+    }
+
+    // Default fallback rule for any nested atelier collections
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
