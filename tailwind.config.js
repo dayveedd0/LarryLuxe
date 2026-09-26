@@ -55,6 +55,7 @@ export default {
         'fade-in': 'fadeIn 0.25s ease-out',
         'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         'scale-in': 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'shake': 'shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both',
       },
       keyframes: {
         fadeIn: {
@@ -68,8 +69,15 @@ export default {
         scaleIn: {
           '0%': { transform: 'scale(0.97)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        shake: {
+          '10%, 90%': { transform: 'translate3d(-2px, 0, 0)' },
+          '20%, 80%': { transform: 'translate3d(4px, 0, 0)' },
+          '30%, 50%, 70%': { transform: 'translate3d(-6px, 0, 0)' },
+          '40%, 60%': { transform: 'translate3d(6px, 0, 0)' },
         }
       }
+
     },
   },
   plugins: [],

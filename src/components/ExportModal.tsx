@@ -36,13 +36,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   if (!isOpen || !customer || !record) return null;
 
   const handleDownloadImage = async (format: 'png' | 'jpeg' = 'png') => {
-    if (!cardRef.current) return;
     try {
       setIsExporting(true);
       const safeName = customer.name.replace(/[^a-zA-Z0-9]/g, '_');
       const safeStyle = (record.stylePreference || 'Measurements').replace(/[^a-zA-Z0-9]/g, '_');
       const fileName = `Larre_Luxe_${safeName}_${safeStyle}.${format}`;
-      await downloadMeasurementCardAsImage(cardRef.current, fileName, format);
+      await downloadMeasurementCardAsImage(customer, record, cardTheme, fileName, format);
     } catch (err) {
       alert('Failed to download image. Please try again.');
       console.error(err);

@@ -11,7 +11,10 @@ import {
   Database,
   Cloud,
   RefreshCw,
-  WifiOff
+  WifiOff,
+  Lock,
+  Shield,
+  Share2
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -20,10 +23,14 @@ interface HeaderProps {
   onNewCustomer: () => void;
   onOpenTemplates: () => void;
   onOpenBackup: () => void;
+  onOpenPasscodeSettings: () => void;
+  onOpenPortalShare: () => void;
+  onLock: () => void;
   customerCount: number;
   measurementCount: number;
   syncStatus?: SyncStatus;
 }
+
 
 export const Header: React.FC<HeaderProps> = ({
   searchTerm,
@@ -31,6 +38,9 @@ export const Header: React.FC<HeaderProps> = ({
   onNewCustomer,
   onOpenTemplates,
   onOpenBackup,
+  onOpenPasscodeSettings,
+  onOpenPortalShare,
+  onLock,
   customerCount,
   measurementCount,
   syncStatus = 'synced',
@@ -117,10 +127,10 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Right Controls & Actions */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2.5">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             
             {/* Search Input (Desktop) */}
-            <div className="relative hidden md:block w-40 lg:w-56">
+            <div className="relative hidden md:block w-36 lg:w-48">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gold-600/70 dark:text-gold-400/70 pointer-events-none" />
               <input
                 type="text"
@@ -131,6 +141,16 @@ export const Header: React.FC<HeaderProps> = ({
               />
             </div>
 
+            {/* Share Portal Link Button */}
+            <button
+              onClick={onOpenPortalShare}
+              title="Share Client Self-Measurement Portal"
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-neutral-600 dark:text-neutral-300 hover:text-gold-600 dark:hover:text-gold-400 hover:bg-gold-500/10 border border-transparent hover:border-gold-500/20 transition-all btn-press flex items-center space-x-1 text-xs font-medium"
+            >
+              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-600 dark:text-gold-400" />
+              <span className="hidden xl:inline text-xs">Client Link</span>
+            </button>
+
             {/* Garment Templates Manager */}
             <button
               onClick={onOpenTemplates}
@@ -138,7 +158,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-neutral-600 dark:text-neutral-300 hover:text-gold-600 dark:hover:text-gold-400 hover:bg-gold-500/10 border border-transparent hover:border-gold-500/20 transition-all btn-press flex items-center space-x-1 text-xs font-medium"
             >
               <SlidersHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-600 dark:text-gold-400" />
-              <span className="hidden sm:inline text-xs">Templates</span>
+              <span className="hidden xl:inline text-xs">Templates</span>
             </button>
 
             {/* Backup / Restore */}
@@ -148,7 +168,25 @@ export const Header: React.FC<HeaderProps> = ({
               className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-neutral-600 dark:text-neutral-300 hover:text-gold-600 dark:hover:text-gold-400 hover:bg-gold-500/10 border border-transparent hover:border-gold-500/20 transition-all btn-press flex items-center space-x-1 text-xs font-medium"
             >
               <Database className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-600 dark:text-gold-400" />
-              <span className="hidden sm:inline text-xs">Backup</span>
+              <span className="hidden xl:inline text-xs">Backup</span>
+            </button>
+
+            {/* Passcode Security Settings */}
+            <button
+              onClick={onOpenPasscodeSettings}
+              title="Atelier Security & Passcode"
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-neutral-600 dark:text-neutral-300 hover:text-gold-600 dark:hover:text-gold-400 hover:bg-gold-500/10 border border-transparent hover:border-gold-500/20 transition-all btn-press flex items-center space-x-1 text-xs font-medium"
+            >
+              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-600 dark:text-gold-400" />
+            </button>
+
+            {/* Lock Atelier Button */}
+            <button
+              onClick={onLock}
+              title="Lock Atelier Workspace"
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-neutral-600 dark:text-neutral-300 hover:text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all btn-press flex items-center space-x-1 text-xs font-medium"
+            >
+              <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             {/* Apple HIG Smooth Theme Toggle */}
@@ -179,3 +217,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

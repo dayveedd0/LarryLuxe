@@ -10,6 +10,10 @@ import { ExportModal } from './components/ExportModal';
 import { GarmentManagerModal } from './components/GarmentManagerModal';
 import { BackupRestoreModal } from './components/BackupRestoreModal';
 import { LuxuryMeasurementCard } from './components/LuxuryMeasurementCard';
+import { PasscodeLock } from './components/PasscodeLock';
+import { PasscodeSettingsModal } from './components/PasscodeSettingsModal';
+import { SharePortalModal } from './components/SharePortalModal';
+import { ClientMeasurementPortal } from './components/ClientMeasurementPortal';
 import { 
   Plus, 
   Scissors, 
@@ -36,6 +40,8 @@ export const App: React.FC = () => {
     selectedTag,
     mobileView,
     syncStatus,
+    isUnlocked,
+    lockApp,
     initStore,
     setSelectedCustomerId,
     setSearchTerm,
@@ -63,6 +69,10 @@ export const App: React.FC = () => {
 
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [isPasscodeSettingsModalOpen, setIsPasscodeSettingsModalOpen] = useState(false);
+  const [isSharePortalModalOpen, setIsSharePortalModalOpen] = useState(false);
+  const [portalTargetCustomer, setPortalTargetCustomer] = useState<Customer | null>(null);
+
 
   // Active selected measurement record index for the selected customer
   const [activeRecordId, setActiveRecordId] = useState<string | null>(null);
@@ -151,6 +161,24 @@ export const App: React.FC = () => {
     }
   };
 
+  // Check if URL requests the Client Portal
+  const isClientPortalMode = typeof window !== 'undefined' && 
+    (new URLSearchParams(window.location.search).get('portal') === 'measure' || 
+     new URLSearchParams(window.location.search).get('portal') === 'true');
+  const urlCustomerId = typeof window !== 'undefined' 
+    ? new URLSearchParams(window.location.search).get('cid') 
+    : null;
+
+  // 1. If in Client Portal mode, render the public self-measurement form without requiring tailor passcode
+  if (isClientPortalMode) {
+    return <ClientMeasurementPortal initialCustomerId={urlCustomerId} />;
+  }
+
+  // 2. If tailor dashboard is locked, require master passcode
+  if (!isUnlocked) {
+    return <PasscodeLock />;
+  }
+
   return (
     <div className="min-h-screen bg-[#FAF9F5] dark:bg-obsidian-950 text-neutral-900 dark:text-neutral-100 flex flex-col selection:bg-gold-500/20 selection:text-gold-700">
       
@@ -164,10 +192,17 @@ export const App: React.FC = () => {
         }}
         onOpenTemplates={() => setIsTemplatesModalOpen(true)}
         onOpenBackup={() => setIsBackupModalOpen(true)}
+        onOpenPasscodeSettings={() => setIsPasscodeSettingsModalOpen(true)}
+        onOpenPortalShare={() => {
+          setPortalTargetCustomer(null);
+          setIsSharePortalModalOpen(true);
+        }}
+        onLock={lockApp}
         customerCount={customers.length}
         measurementCount={totalMeasurements}
         syncStatus={syncStatus}
       />
+
 
       {/* Main Studio Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
@@ -371,6 +406,10 @@ export const App: React.FC = () => {
                       setEditingMeasurementRecord(null);
                       setIsMeasurementModalOpen(true);
                     }}
+                    onSharePortal={(c) => {
+                      setPortalTargetCustomer(c);
+                      setIsSharePortalModalOpen(true);
+                    }}
                     onExportLatest={openExportLatest}
                     onDeleteCustomer={handleDeleteCustomer}
                   />
@@ -431,8 +470,20 @@ export const App: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Quick Call / WhatsApp / Edit buttons */}
-                    <div className="flex items-center space-x-2">
+                    {/* Quick Call / WhatsApp / Edit / Share Portal buttons */}
+                    <div className="flex items-center space-x-2 flex-wrap gap-y-2">
+                      <button
+                        onClick={() => {
+                          setPortalTargetCustomer(selectedCustomer);
+                          setIsSharePortalModalOpen(true);
+                        }}
+                        className="px-3 py-2 rounded-xl bg-gold-500/10 hover:bg-gold-500/20 text-gold-700 dark:text-gold-300 border border-gold-500/25 text-xs font-semibold flex items-center gap-1.5 transition-colors btn-press"
+                        title="Send self-measurement link to this client"
+                      >
+                        <Share2 className="w-3.5 h-3.5 text-gold-500" />
+                        <span>Self-Measure Link</span>
+                      </button>
+
                       {selectedCustomer.phone && (
                         <a
                           href={`https://wa.me/${selectedCustomer.phone.replace(/[^0-9]/g, '')}`}
@@ -455,6 +506,7 @@ export const App: React.FC = () => {
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Edit</span>
                       </button>
+
 
                       <button
                         onClick={() => {
@@ -647,8 +699,23 @@ export const App: React.FC = () => {
         onRestore={restoreCustomers}
       />
 
+      <PasscodeSettingsModal
+        isOpen={isPasscodeSettingsModalOpen}
+        onClose={() => setIsPasscodeSettingsModalOpen(false)}
+      />
+
+      <SharePortalModal
+        isOpen={isSharePortalModalOpen}
+        onClose={() => {
+          setIsSharePortalModalOpen(false);
+          setPortalTargetCustomer(null);
+        }}
+        customer={portalTargetCustomer}
+      />
+
     </div>
   );
 };
+
 
 export default App;

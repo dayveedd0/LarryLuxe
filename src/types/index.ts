@@ -51,3 +51,23 @@ export interface GarmentTemplate {
     fields: { id: string; label: string; placeholder?: string }[];
   }[];
 }
+
+export interface AtelierSettings {
+  passcode: string;
+  isLockEnabled: boolean;
+  autoLockMinutes: number;
+}
+
+export interface ClientSubmissionData {
+  customerId?: string;
+  name: string;
+  phone: string;
+  email?: string;
+  stylePreference: string;
+  fitPreference: FitPreference;
+  fabricType: string;
+  color: string;
+  garmentSections: GarmentSection[];
+  specialNotes: string;
+}
+

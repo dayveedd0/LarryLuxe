@@ -1,0 +1,156 @@
+export interface MeasurementGuideItem {
+  id: string;
+  name: string;
+  category: 'TOP' | 'TROUSER' | 'AGBADA' | 'SUIT';
+  instructions: string;
+  tips: string;
+  iconName?: string;
+  commonRange: string;
+}
+
+export const SELF_MEASUREMENT_GUIDES: Record<string, MeasurementGuideItem> = {
+  neck: {
+    id: 'neck',
+    name: 'Neck Circumference',
+    category: 'TOP',
+    instructions: 'Wrap the tape measure around base of neck where collar rests. Keep one finger inside tape for comfort.',
+    tips: 'Do not pull too tight; allow normal breathing room.',
+    commonRange: '14" - 19"',
+  },
+  shoulder: {
+    id: 'shoulder',
+    name: 'Shoulder Width',
+    category: 'TOP',
+    instructions: 'Measure across upper back from outer tip of left shoulder bone across to outer tip of right shoulder bone.',
+    tips: 'Stand relaxed with arms resting naturally at sides.',
+    commonRange: '16" - 22"',
+  },
+  chest: {
+    id: 'chest',
+    name: 'Chest / Bust',
+    category: 'TOP',
+    instructions: 'Wrap tape around fullest part of chest, directly under armpits, keeping tape straight across shoulder blades.',
+    tips: 'Breathe normally, do not puff out chest.',
+    commonRange: '34" - 54"',
+  },
+  stomach: {
+    id: 'stomach',
+    name: 'Stomach / Midsection',
+    category: 'TOP',
+    instructions: 'Measure around fullest part of abdomen, usually at or just above navel.',
+    tips: 'Stand natural, do not suck in stomach.',
+    commonRange: '30" - 52"',
+  },
+  hip: {
+    id: 'hip',
+    name: 'Hip Circumference',
+    category: 'TOP',
+    instructions: 'Measure around widest part of hips and buttocks.',
+    tips: 'Empty pockets before measuring.',
+    commonRange: '36" - 56"',
+  },
+  sleeve: {
+    id: 'sleeve',
+    name: 'Sleeve Length',
+    category: 'TOP',
+    instructions: 'Measure from shoulder tip down arm to desired wrist/cuff point (or elbow for short sleeve).',
+    tips: 'Keep arm relaxed with a gentle natural bend.',
+    commonRange: '23" - 28" (Long) / 9" - 13" (Short)',
+  },
+  bicep: {
+    id: 'bicep',
+    name: 'Bicep / Muscle',
+    category: 'TOP',
+    instructions: 'Wrap around the fullest part of the upper arm muscle.',
+    tips: 'Keep arm relaxed, not flexed.',
+    commonRange: '12" - 20"',
+  },
+  wrist: {
+    id: 'wrist',
+    name: 'Wrist / Cuff',
+    category: 'TOP',
+    instructions: 'Measure around wrist bone where shirt cuff sits.',
+    tips: 'Allow slight ease for watch or cuff links.',
+    commonRange: '6.5" - 9.5"',
+  },
+  topLength: {
+    id: 'topLength',
+    name: 'Top / Shirt Length',
+    category: 'TOP',
+    instructions: 'From base of neck/collar seam down center of chest to desired hemline (e.g., mid-thigh for Senator).',
+    tips: 'For Senator or Kaftan, usually ends 3-4 inches above knee.',
+    commonRange: '30" - 42"',
+  },
+  waist: {
+    id: 'waist',
+    name: 'Trouser Waist',
+    category: 'TROUSER',
+    instructions: 'Measure around waistline where you naturally wear trouser belt or waistband.',
+    tips: 'Place one finger between tape and body for tailored comfort.',
+    commonRange: '28" - 48"',
+  },
+  hipSeat: {
+    id: 'hipSeat',
+    name: 'Hip / Seat',
+    category: 'TROUSER',
+    instructions: 'Measure around fullest circumference of seat/glutes.',
+    tips: 'Ensure tape is parallel to floor.',
+    commonRange: '36" - 56"',
+  },
+  thigh: {
+    id: 'thigh',
+    name: 'Thigh Width',
+    category: 'TROUSER',
+    instructions: 'Measure around fullest part of upper thigh, approximately 1-2 inches below crotch.',
+    tips: 'Stand with feet hip-width apart.',
+    commonRange: '22" - 32"',
+  },
+  knee: {
+    id: 'knee',
+    name: 'Knee Circumference',
+    category: 'TROUSER',
+    instructions: 'Measure around mid-knee.',
+    tips: 'Determines slim taper vs relaxed trouser leg.',
+    commonRange: '16" - 22"',
+  },
+  crotchRise: {
+    id: 'crotchRise',
+    name: 'Crotch / Rise',
+    category: 'TROUSER',
+    instructions: 'Measure from front waistband between legs up to back waistband.',
+    tips: 'Or measure vertically from waistband to crotch seam.',
+    commonRange: '22" - 32"',
+  },
+  trouserLength: {
+    id: 'trouserLength',
+    name: 'Trouser Outseam Length',
+    category: 'TROUSER',
+    instructions: 'From top of waistband down the outside of leg to the top of shoe heel/floor.',
+    tips: 'Wear the shoes you plan to wear with this outfit.',
+    commonRange: '38" - 46"',
+  },
+  bottom: {
+    id: 'bottom',
+    name: 'Ankle / Leg Opening',
+    category: 'TROUSER',
+    instructions: 'Desired circumference of trouser hem around ankle.',
+    tips: 'Fitted look is usually 13"-15"; classic is 15"-17".',
+    commonRange: '13" - 18"',
+  },
+  agbadaLength: {
+    id: 'agbadaLength',
+    name: 'Agbada Robe Length',
+    category: 'AGBADA',
+    instructions: 'From highest shoulder point down to shin or ankle level.',
+    tips: 'Traditional royal Agbada sweeps near the ankle.',
+    commonRange: '48" - 58"',
+  },
+  agbadaSpan: {
+    id: 'agbadaSpan',
+    name: 'Shoulder Span / Wing',
+    category: 'AGBADA',
+    instructions: 'Total wing span from left wrist across back and shoulders to right wrist.',
+    tips: 'Arms spread horizontally.',
+    commonRange: '56" - 68"',
+  },
+};

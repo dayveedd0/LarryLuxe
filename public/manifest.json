@@ -1,0 +1,44 @@
+{
+  "name": "Larré Luxe — Haute Couture Measurement Studio",
+  "short_name": "Larré Luxe",
+  "description": "Haute Couture & Bespoke Tailor Client Measurement Management Studio",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#0E1015",
+  "theme_color": "#C5A059",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["lifestyle", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/assets/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/logo-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Register New Client",
+      "short_name": "Add Client",
+      "description": "Quickly add a new customer and measurements",
+      "url": "/?action=new-client",
+      "icons": [{ "src": "/assets/icon.png", "sizes": "192x192" }]
+    }
+  ]
+}

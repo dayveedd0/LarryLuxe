@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Customer, CustomerMeasurementRecord } from '../types';
+import { Customer, CustomerMeasurementRecord, ClientSubmissionData } from '../types';
 import {
   subscribeToCustomers,
   createCustomerDoc,
@@ -8,6 +8,7 @@ import {
   saveCustomerMeasurementDoc,
   deleteCustomerMeasurementDoc,
   restoreCustomersBatch,
+  saveClientSelfMeasurement,
 } from '../services/firestoreService';
 
 export type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error';
@@ -23,6 +24,13 @@ interface TailorState {
   errorMessage: string | null;
   unsubscribeSnapshot: (() => void) | null;
 
+  // Authentication & Security
+  isUnlocked: boolean;
+  masterPasscode: string;
+  unlockApp: (passcode: string) => boolean;
+  lockApp: () => void;
+  setMasterPasscode: (newCode: string) => void;
+
   // Actions
   initStore: () => void;
   setSelectedCustomerId: (id: string | null) => void;
@@ -37,7 +45,9 @@ interface TailorState {
   saveMeasurement: (customerId: string, record: CustomerMeasurementRecord) => Promise<void>;
   deleteMeasurement: (customerId: string, recordId: string) => Promise<void>;
   restoreCustomers: (importedCustomers: Customer[]) => Promise<void>;
+  submitClientSelfMeasurement: (data: ClientSubmissionData) => Promise<Customer>;
 }
+
 
 export const useTailorStore = create<TailorState>((set, get) => ({
   customers: (() => {
@@ -63,6 +73,40 @@ export const useTailorStore = create<TailorState>((set, get) => ({
   syncStatus: 'syncing',
   errorMessage: null,
   unsubscribeSnapshot: null,
+
+  // Authentication initial state
+  isUnlocked: typeof window !== 'undefined' ? sessionStorage.getItem('larre_luxe_unlocked') === 'true' : false,
+  masterPasscode: typeof window !== 'undefined' ? localStorage.getItem('larre_luxe_passcode') || '1926' : '1926',
+
+  unlockApp: (passcode: string) => {
+    const currentPasscode = get().masterPasscode;
+    if (passcode.trim() === currentPasscode.trim()) {
+      set({ isUnlocked: true });
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('larre_luxe_unlocked', 'true');
+      }
+      return true;
+    }
+    return false;
+  },
+
+  lockApp: () => {
+    set({ isUnlocked: false });
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('larre_luxe_unlocked');
+    }
+  },
+
+  setMasterPasscode: (newCode: string) => {
+    const trimmed = newCode.trim();
+    if (trimmed.length >= 4) {
+      set({ masterPasscode: trimmed });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('larre_luxe_passcode', trimmed);
+      }
+    }
+  },
+
 
   initStore: () => {
     // Clean up existing listener if any
@@ -272,4 +316,34 @@ export const useTailorStore = create<TailorState>((set, get) => ({
       set({ syncStatus: 'offline' });
     }
   },
+
+  submitClientSelfMeasurement: async (submissionData) => {
+    set({ syncStatus: 'syncing' });
+    try {
+      const savedCustomer = await saveClientSelfMeasurement(submissionData);
+      
+      // Update local state
+      const currentList = get().customers;
+      const existingIndex = currentList.findIndex(c => c.id === savedCustomer.id);
+      let updatedList: Customer[];
+      if (existingIndex >= 0) {
+        updatedList = currentList.map(c => c.id === savedCustomer.id ? savedCustomer : c);
+      } else {
+        updatedList = [savedCustomer, ...currentList];
+      }
+
+      set({ 
+        customers: updatedList, 
+        selectedCustomerId: savedCustomer.id,
+        syncStatus: 'synced' 
+      });
+      localStorage.setItem('larre_luxe_customers', JSON.stringify(updatedList));
+      return savedCustomer;
+    } catch (err) {
+      console.warn('Failed to submit client self measurement:', err);
+      set({ syncStatus: 'offline' });
+      throw err;
+    }
+  },
 }));
+

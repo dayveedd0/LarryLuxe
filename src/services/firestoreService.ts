@@ -2,13 +2,15 @@ import {
   collection, 
   doc, 
   setDoc, 
+  getDoc,
   updateDoc, 
   deleteDoc, 
   onSnapshot, 
   query, 
-  orderBy,
-  writeBatch
+  orderBy, 
+  writeBatch 
 } from 'firebase/firestore';
+
 import { db } from './firebase';
 import { Customer, CustomerMeasurementRecord } from '../types';
 
@@ -112,6 +114,83 @@ export async function deleteCustomerMeasurementDoc(
 
 
 /**
+ * Fetch a single customer document by ID (useful for client self-service portal lookup)
+ */
+export async function getCustomerDoc(customerId: string): Promise<Customer | null> {
+  try {
+    const docRef = doc(db, CUSTOMERS_COLLECTION, customerId);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data() as Customer;
+    }
+    return null;
+  } catch (err) {
+    console.warn('Failed to fetch customer by ID:', err);
+    return null;
+  }
+}
+
+
+/**
+ * Save client self-submitted measurement
+ */
+export async function saveClientSelfMeasurement(
+  submission: import('../types').ClientSubmissionData
+): Promise<Customer> {
+  let targetCustomer: Customer | null = null;
+
+  if (submission.customerId) {
+    targetCustomer = await getCustomerDoc(submission.customerId);
+  }
+
+  const newRecord: CustomerMeasurementRecord = {
+    id: `meas-${Date.now()}`,
+    dateRef: new Date().toISOString().split('T')[0],
+    stylePreference: submission.stylePreference || 'Self-Service Bespoke',
+    fitPreference: submission.fitPreference || 'Bespoke Tailored',
+    fabricType: submission.fabricType || 'Client Provided',
+    color: submission.color || 'Standard',
+    garmentSections: submission.garmentSections,
+    specialNotes: submission.specialNotes 
+      ? `[Client Submitted] ${submission.specialNotes}` 
+      : '[Client Submitted via Portal]',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (targetCustomer) {
+    // Update existing customer
+    await saveCustomerMeasurementDoc(targetCustomer, newRecord);
+    if (submission.name && submission.name !== targetCustomer.name) {
+      await updateCustomerDoc(targetCustomer.id, {
+        name: submission.name,
+        phone: submission.phone || targetCustomer.phone,
+        email: submission.email || targetCustomer.email,
+      });
+    }
+    return {
+      ...targetCustomer,
+      measurements: [...targetCustomer.measurements, newRecord],
+      updatedAt: new Date().toISOString()
+    };
+  } else {
+    // Create brand new customer
+    const newCustomer: Customer = {
+      id: `cust-${Date.now()}`,
+      name: submission.name || 'Bespoke Client',
+      phone: submission.phone || '',
+      email: submission.email || '',
+      tags: ['Portal Submission', 'Bespoke'],
+      measurements: [newRecord],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await createCustomerDoc(newCustomer);
+    return newCustomer;
+  }
+}
+
+/**
  * Batch restore multiple customers (e.g. from JSON backup)
  */
 export async function restoreCustomersBatch(customers: Customer[]): Promise<void> {
@@ -122,3 +201,4 @@ export async function restoreCustomersBatch(customers: Customer[]): Promise<void
   });
   await batch.commit();
 }
+

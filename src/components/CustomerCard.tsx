@@ -15,6 +15,7 @@ interface CustomerCardProps {
   onEditCustomer: (customer: Customer) => void;
   onNewMeasurement: (customer: Customer) => void;
   onExportLatest: (customer: Customer) => void;
+  onSharePortal?: (customer: Customer) => void;
   onDeleteCustomer: (customerId: string) => void;
   isSelected?: boolean;
 }
@@ -25,9 +26,11 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   onEditCustomer,
   onNewMeasurement,
   onExportLatest,
+  onSharePortal,
   onDeleteCustomer,
   isSelected
 }) => {
+
   const [showMenu, setShowMenu] = React.useState(false);
   const latestRecord = customer.measurements[customer.measurements.length - 1];
 
@@ -119,6 +122,17 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
               >
                 <Plus className="w-3.5 h-3.5" /> Add Measurements
               </button>
+              {onSharePortal && (
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    onSharePortal(customer);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-gold-500/10 dark:hover:bg-obsidian-800 text-neutral-700 dark:text-neutral-200 font-medium flex items-center gap-1.5"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-gold-500" /> Share Self-Measure Link
+                </button>
+              )}
               {latestRecord && (
                 <button
                   onClick={() => {
@@ -130,6 +144,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                   <Share2 className="w-3.5 h-3.5" /> Download / Share Card
                 </button>
               )}
+
               <div className="h-px bg-gold-500/15 my-1" />
               <button
                 onClick={() => {
