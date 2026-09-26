@@ -597,7 +597,9 @@ export const App: React.FC = () => {
                         customer={selectedCustomer}
                         record={activeRecord}
                         variant="auto"
+                        id="studio-measurement-card"
                       />
+
                     </div>
                   </div>
                 ) : (

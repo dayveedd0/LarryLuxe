@@ -94,20 +94,67 @@
 
 /* Print Stylesheet for Physical Measurement Cards */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  /* Hide all app UI chrome */
   body * {
-    visibility: hidden;
+    visibility: hidden !important;
   }
-  #printable-card, #printable-card * {
-    visibility: visible;
+
+  /* Flatten modal containers, headers, overlays */
+  #root,
+  .fixed,
+  .overflow-hidden,
+  .overflow-y-auto,
+  main {
+    position: static !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
+
+  /* Target active printable card only */
+  #printable-card,
+  #printable-card * {
+    visibility: visible !important;
+  }
+
   #printable-card {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 20px;
-    box-shadow: none;
-    border: 2px solid #C5A059;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 24px !important;
+    box-shadow: none !important;
+    background: #FCFBF7 !important;
+    color: #171717 !important;
+    border: 2px solid #C5A059 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
+

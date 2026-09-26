@@ -8,6 +8,7 @@ interface LuxuryMeasurementCardProps {
   cardRef?: React.RefObject<HTMLDivElement>;
   variant?: 'light' | 'dark' | 'auto';
   showActions?: boolean;
+  id?: string;
 }
 
 export const LuxuryMeasurementCard: React.FC<LuxuryMeasurementCardProps> = ({
@@ -15,6 +16,7 @@ export const LuxuryMeasurementCard: React.FC<LuxuryMeasurementCardProps> = ({
   record,
   cardRef,
   variant = 'auto',
+  id = 'printable-card',
 }) => {
   // Determine dark state accurately for both auto theme and explicit preview variants
   const isDark = variant === 'dark' || (variant === 'auto' && typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
@@ -27,12 +29,13 @@ export const LuxuryMeasurementCard: React.FC<LuxuryMeasurementCardProps> = ({
   return (
     <div
       ref={cardRef}
-      id="printable-card"
-      className={`relative w-full max-w-2xl mx-auto rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 shadow-2xl transition-all duration-300 overflow-hidden box-border ${
+      id={id}
+      className={`printable-luxury-card relative w-full max-w-2xl mx-auto rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 shadow-2xl transition-all duration-300 overflow-hidden box-border ${
         isDark
           ? 'bg-[#0E1015] text-white border border-gold-500/30'
           : 'bg-[#FCFBF7] text-neutral-950 border-2 border-gold-500/35'
       }`}
+
       style={{
         boxSizing: 'border-box',
         boxShadow: isDark

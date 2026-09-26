@@ -1,6 +1,22 @@
 import { toPng, toJpeg } from 'html-to-image';
 import { Customer, CustomerMeasurementRecord } from '../types';
 
+/**
+ * Helper to convert Base64 Data URL to Blob reliably
+ */
+function dataUrlToBlob(dataUrl: string): Blob {
+
+  const parts = dataUrl.split(';base64,');
+  const contentType = parts[0].split(':')[1];
+  const raw = window.atob(parts[1]);
+  const rawLength = raw.length;
+  const uInt8Array = new Uint8Array(rawLength);
+  for (let i = 0; i < rawLength; ++i) {
+    uInt8Array[i] = raw.charCodeAt(i);
+  }
+  return new Blob([uInt8Array], { type: contentType });
+}
+
 export async function downloadMeasurementCardAsImage(
   customerOrElement: Customer | HTMLElement,
   recordOrFileName?: CustomerMeasurementRecord | string,
@@ -8,9 +24,16 @@ export async function downloadMeasurementCardAsImage(
   fileName: string = 'Larre_Luxe_Measurements.png',
   formatType: 'png' | 'jpeg' = 'png'
 ): Promise<void> {
-  // Ensure all custom fonts (Playfair, Cormorant, Pinyon Script) are completely loaded
+  // Ensure all custom fonts are completely loaded with safe timeout
   if (document.fonts) {
-    await document.fonts.ready;
+    try {
+      await Promise.race([
+        document.fonts.ready,
+        new Promise((resolve) => setTimeout(resolve, 1200))
+      ]);
+    } catch {
+      // Font readiness fallback
+    }
   }
 
   // Check if called with (customer, record, variant, fileName, formatType)
@@ -29,17 +52,18 @@ export async function downloadMeasurementCardAsImage(
   // Canonical luxury card standard master width (780px)
   const STANDARD_WIDTH = 780;
 
-  // Staging container placed offscreen to guarantee 100% viewport-independent standard rendering
+  // Staging container placed within viewport render tree (opacity 0.01, z-index -99999) to guarantee 100% WebKit mobile rendering
   const stagingContainer = document.createElement('div');
   stagingContainer.style.position = 'fixed';
   stagingContainer.style.top = '0';
-  stagingContainer.style.left = '-9999px';
+  stagingContainer.style.left = '0';
   stagingContainer.style.width = `${STANDARD_WIDTH}px`;
   stagingContainer.style.minWidth = `${STANDARD_WIDTH}px`;
   stagingContainer.style.maxWidth = `${STANDARD_WIDTH}px`;
-  stagingContainer.style.zIndex = '-9999';
-  stagingContainer.style.opacity = '1';
+  stagingContainer.style.zIndex = '-99999';
+  stagingContainer.style.opacity = '0.01';
   stagingContainer.style.pointerEvents = 'none';
+  stagingContainer.style.visibility = 'visible';
 
   if (isCustomerObject(customerOrElement) && isMeasurementRecord(recordOrFileName)) {
     const customer = customerOrElement;
@@ -102,13 +126,44 @@ export async function downloadMeasurementCardAsImage(
     // Final rasterization
     const dataUrl = exportFormat === 'png' ? await toPng(exportElement, options) : await toJpeg(exportElement, options);
 
-    // Trigger file download
+    // Convert data URL to Blob for rock-solid mobile compatibility
+    const blob = dataUrlToBlob(dataUrl);
+    const mimeType = exportFormat === 'png' ? 'image/png' : 'image/jpeg';
+    const file = new File([blob], targetFileName, { type: mimeType });
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+    // On mobile devices, try native Web Share API first (lets user save image directly to Photos or WhatsApp)
+    if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: `Larré Luxe Measurement Card`,
+          text: `👑 Larré Luxe Bespoke Measurements for ${isCustomerObject(customerOrElement) ? customerOrElement.name : 'Client'}`,
+        });
+        return;
+      } catch (shareErr: any) {
+        if (shareErr.name === 'AbortError') {
+          return; // User cancelled share sheet
+        }
+        console.warn('Native share failed, proceeding with direct download:', shareErr);
+      }
+    }
+
+    // Standard Blob URL download fallback
+    const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.download = targetFileName;
-    link.href = dataUrl;
+    link.href = blobUrl;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+
+    setTimeout(() => {
+      if (document.body.contains(link)) {
+        document.body.removeChild(link);
+      }
+      URL.revokeObjectURL(blobUrl);
+    }, 3000);
   } catch (error) {
     console.error('Failed to export measurement card as image:', error);
     throw error;
@@ -118,6 +173,7 @@ export async function downloadMeasurementCardAsImage(
     }
   }
 }
+
 
 /**
  * Builds the canonical standard haute couture measurement card DOM structure
